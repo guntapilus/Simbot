@@ -11,52 +11,6 @@
 
 #define PI 3.14159265358979323846
 
-#define ROBOT_AMT 10
-class aRobot  
-{
-
-
-public:
-	int Smell();
-	bool Move(int Pixel);
-	void Turn(int Degree);
-	bool MoveBackward();
-	void Execution();
-	bool CheckSensor(int x, int y);
-	bool CheckWall(int x,int y);
-	void ScanSensors();
-	bool MoveForward();
-	void TurnRight();
-	void TurnLeft();
-	void SetDirection(int degree);
-	int IR[8];
-	int direction;
-	int pos_y;
-	int pos_x;
-	int target;
-	int count;
-	double max;
-	bool Collision;
-	double Ffar(); 
-	double Lfar(); 
-	double Rfar(); 
-	// add more 
-	double smellright();
-	double smellleft();
-	// add more 
-	int irfront;
-	int irfront_right;
-	int irfront_left;
-	int irtail_right;
-	int irtail_left;
-	int irright;
-	int irleft;
-	//neighbor information
-	int robotCount = 0;
-	aRobot* otherRobot;
-	int id;
-};
-
 class CSIMbotView : public CView
 {
 
@@ -83,7 +37,6 @@ public:
 // Implementation
 public:
 	void DrawMaze(CDC* pDC);
-	aRobot ROBOT[ROBOT_AMT];
 	UINT    TimerVal;
 	static void DrawRobot(CDC* pDC, int x,int y, int degree);
 	virtual ~CSIMbotView();
