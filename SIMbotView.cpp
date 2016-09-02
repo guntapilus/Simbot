@@ -10,6 +10,9 @@
 #include "SIMbotDoc.h"
 #include "SIMbotView.h"
 
+#include "Simulation.h"
+Simulation* sim;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -17,13 +20,6 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 #define  IDT_TIMER  WM_USER + 200 
-int mapBoundaryX[2] = { 10,750 };
-int mapBoundaryY[2] = { 10,410 };
-
-int Step = 0;
-int DIRECTION = 0;
-int SMELL;
-int Fx,Fy;
 bool ShowGraphic=true;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -47,26 +43,12 @@ CSIMbotView::CSIMbotView()
 {
 	// TODO: add construction code here
 	srand((unsigned)time(NULL)); 
-
-	Fx = 720;
-	Fy = 210;
-	for (int i=0;i<ROBOT_AMT;i++) {
-		//setup neighbor information
-		ROBOT[i].robotCount = ROBOT_AMT;
-		ROBOT[i].otherRobot = ROBOT;
-		ROBOT[i].id = i;
-		//initial the robot's parameter
-		ROBOT[i].pos_x = 40+(i/10)*30;
-		ROBOT[i].pos_y = 60+(i%10)*30;
-		ROBOT[i].direction = 0;
-		ROBOT[i].Collision = false;
-		for (int j=0;j<8;j++) ROBOT[i].IR[j] = 0;
-	}
-
+	sim = new Simulation();
 }
 
 CSIMbotView::~CSIMbotView()
 {
+	delete sim;
 }
 
 BOOL CSIMbotView::PreCreateWindow(CREATESTRUCT& cs)
@@ -85,48 +67,10 @@ void CSIMbotView::OnDraw(CDC* pDC)
 	ASSERT_VALID(pDoc);
 	// TODO: add draw code for native data here
 	DrawMaze(pDC);
-	CString Message;
-	
-	// Draw a robot on screen
-	for (int i=0;i<ROBOT_AMT;i++) {
-		DrawRobot(pDC,ROBOT[i].pos_x,ROBOT[i].pos_y,ROBOT[i].direction);
-		ROBOT[i].ScanSensors();
-		SMELL = ROBOT[i].Smell();
-		DIRECTION = ROBOT[i].direction;
-	}
-	Message.Format("Running Steps : %d",Step); 
-	pDC->TextOut(10,415,Message);
-	
-	//draw info
-	int Mx = 400;
-	int My = 480;
-	pDC->Ellipse(Mx-20,My-20,Mx+20,My+20);
-	pDC->MoveTo(Mx,My);
-	pDC->LineTo(Mx+(int)(20*cos(0*PI/180)),My+(int)(20*sin(0*PI/180)));
-	pDC->Ellipse(Mx+(int)(15*cos(0*PI/180))-5,My+(int)(15*sin(0*PI/180))-5,Mx+(int)(15*cos(0*PI/180))+5,My+(int)(15*sin(0*PI/180))+5);
-	/*
-	Message.Format("%d",ROBOT[0].IR[0]);
-	pDC->TextOut(Mx+10+(int)(20*cos(0*PI/180)),My-7+(int)(20*sin(0*PI/180)),Message);
-	Message.Format("%d",ROBOT[0].IR[1]);
-	pDC->TextOut(Mx+8+(int)(20*cos(45*PI/180)),My-5+(int)(20*sin(45*PI/180)),Message);
-	Message.Format("%d",ROBOT[0].IR[2]);
-	pDC->TextOut(Mx-10+(int)(20*cos(90*PI/180)),My+3+(int)(20*sin(90*PI/180)),Message);
-	Message.Format("%d",ROBOT[0].IR[3]);
-	pDC->TextOut(Mx-28+(int)(20*cos(135*PI/180)),My-5+(int)(20*sin(135*PI/180)),Message);
-	Message.Format("%d",ROBOT[0].IR[4]);
-	pDC->TextOut(Mx-30+(int)(20*cos(180*PI/180)),My-7+(int)(20*sin(180*PI/180)),Message);
-	Message.Format("%d",ROBOT[0].IR[5]);
-	pDC->TextOut(Mx-28+(int)(20*cos(225*PI/180)),My-12+(int)(20*sin(225*PI/180)),Message);
-	Message.Format("%d",ROBOT[0].IR[6]);
-	pDC->TextOut(Mx-10+(int)(20*cos(270*PI/180)),My-18+(int)(20*sin(270*PI/180)),Message);
-	Message.Format("%d",ROBOT[0].IR[7]);
-	pDC->TextOut(Mx+8+(int)(20*cos(315*PI/180)),My-8+(int)(20*sin(315*PI/180)),Message);
+	//draw robot
+	//draw food
 
-	Message.Format("Direction: %d",DIRECTION); 
-	pDC->TextOut(10,430,Message);
-	Message.Format("Smell: %d",SMELL); 
-	pDC->TextOut(10,445,Message);
-	*/
+	//draw info pane
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -189,33 +133,12 @@ void CSIMbotView::DrawRobot(CDC* pDC, int x,int y, int degree)
 void CSIMbotView::OnMouseMove(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
-
 	CView::OnMouseMove(nFlags, point);
 }
 void CSIMbotView::OnTimer(UINT nIDEvent) 
 {
-    // Exection robot program
-	// check if any robot reach the food
-	for (int i = 0; i < ROBOT_AMT; i++)
-	{
-		int distFood_x = ROBOT[i].pos_x - Fx;
-		distFood_x *= distFood_x;
-		int distFood_y = ROBOT[i].pos_y - Fy;
-		distFood_y *= distFood_y;
-		int distFood = (int)sqrt(distFood_x + distFood_y);
-		if (distFood < 20)
-		{
-			//random new food position
-			Fx = rand() % (mapBoundaryX[1] - mapBoundaryX[0] - 20) + mapBoundaryX[0] + 10;
-			Fy = rand() % (mapBoundaryY[1] - mapBoundaryY[0] - 20) + mapBoundaryY[0] + 10;
-			i = 0;	//recheck if new food position is in any robot's position
-		}
-	}
-	for (int i = 0; i < ROBOT_AMT; i++)
-	{
-		ROBOT[i].Execution();
-	}
-	Step++;
+    // Exection robot program by steping the simulation frame
+	sim->frameAdvance();
 	if (ShowGraphic) Invalidate();
 	CView::OnTimer(nIDEvent);
 }
@@ -224,9 +147,8 @@ void CSIMbotView::OnInitialUpdate()
 {
 	CView::OnInitialUpdate();
 	// TODO: Add your specialized code here and/or call the base class
-
     // set the speed of simulation running here...
-    TimerVal = SetTimer (IDT_TIMER, 75, NULL);  // Starting the Timer
+    TimerVal = SetTimer (IDT_TIMER, 50, NULL);  // Starting the Timer
     if (TimerVal == 0)
     {
         AfxMessageBox("Unable to obtain timer");
