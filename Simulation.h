@@ -8,14 +8,15 @@ public:
 	Simulation();
 	~Simulation();
 	void frameAdvance();
-private:
-	//time
-	int Step = 0;
 	//map
 	int mapBoundaryXlow = 10;
 	int mapBoundaryXhigh = 750;
 	int mapBoundaryYlow = 10;
 	int mapBoundaryYhigh = 410;
+private:
+	//time
+	int Step = 0;
+	
 	//obstrucle box
 	std::vector<int> box_xlow;
 	std::vector<int> box_xhigh;

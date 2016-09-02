@@ -101,16 +101,20 @@ CSIMbotDoc* CSIMbotView::GetDocument() // non-debug version is inline
 void CSIMbotView::DrawMaze(CDC* pDC)
 {
 	//map boundary
-	pDC->Rectangle(mapBoundaryX[0], mapBoundaryY[0], mapBoundaryX[1], mapBoundaryY[1]);
+	pDC->Rectangle(sim->mapBoundaryXlow, sim->mapBoundaryYlow, sim->mapBoundaryXhigh, sim->mapBoundaryYhigh);
 	//food
-	pDC->FillRect(CRect(Fx-10,Fy-10,Fx+10,Fy+10),&CBrush(RGB(0,255,0)));
+	//pDC->FillRect(CRect(Fx-10,Fy-10,Fx+10,Fy+10),&CBrush(RGB(0,255,0)));
 }
 
 void CSIMbotView::DrawRobot(CDC* pDC, int x,int y, int degree)
 {
-	pDC->Ellipse(x-10,y-10,x+10,y+10);
-	pDC->MoveTo(x,y);
-	pDC->LineTo(x+(int)(10*cos(degree*PI/180)),y+(int)(10*sin(degree*PI/180)));
+	//robot body
+	pDC->Ellipse(x - 10, y - 10, x + 10, y + 10);
+	//robot direction
+	pDC->MoveTo(x, y);
+	pDC->LineTo(x + (int)(10 * cos(degree*PI / 180)), y + (int)(10 * sin(degree*PI / 180)));
+	pDC->FillRect(CRect(x + (int)(7 * cos(degree*PI / 180)) - 2, y + (int)(7 * sin(degree*PI / 180)) - 2, x + (int)(7 * cos(degree*PI / 180)) + 2, y + (int)(7 * sin(degree*PI / 180)) + 2), &CBrush(RGB(255, 0, 0)));
+	//robot sensor line
 /*	pDC->MoveTo(x,y);
 	pDC->LineTo(x+(int)(50*sin(degree*PI/180)),y+(int)(50*cos(degree*PI/180)));
 	pDC->MoveTo(x,y);
@@ -128,7 +132,6 @@ void CSIMbotView::DrawRobot(CDC* pDC, int x,int y, int degree)
 	pDC->MoveTo(x,y);
 	pDC->LineTo(x+(int)(50*sin((degree-135)*PI/180)),y+(int)(50*cos((degree-135)*PI/180)));*/
 	//pDC->Ellipse(x+(int)(7*cos(degree*PI/180))-3,y+(int)(7*sin(degree*PI/180))-3,x+(int)(7*cos(degree*PI/180))+3,y+(int)(7*sin(degree*PI/180))+3);
-	pDC->FillRect(CRect(x+(int)(7*cos(degree*PI/180))-2,y+(int)(7*sin(degree*PI/180))-2,x+(int)(7*cos(degree*PI/180))+2,y+(int)(7*sin(degree*PI/180))+2),&CBrush(RGB(255,0,0)));
 }
 void CSIMbotView::OnMouseMove(UINT nFlags, CPoint point) 
 {
@@ -157,14 +160,14 @@ void CSIMbotView::OnInitialUpdate()
 
 void CSIMbotView::OnHelpTest()
 {
-	Fy += 50;
+	/*Fy += 50;
 	if (Fy < 30)  Fy = 30;
-	if (Fy > 390) Fy = 390;
+	if (Fy > 390) Fy = 390;*/
 }
 
 void CSIMbotView::OnHelpTestDec()
 {
-	Fy -= 50;
+	/*Fy -= 50;
 	if (Fy < 30)  Fy = 30;
-	if (Fy > 390) Fy = 390;
+	if (Fy > 390) Fy = 390;*/
 }
